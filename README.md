@@ -1,6 +1,6 @@
-# Academic Paper Crawler
+# Hugging Face Paper Ranking Crawler
 
-Academic paper crawling tool for automated paper research.
+Hugging Face paper ranking (formerly Papers with Code) crawler for automated paper research, integrated with LLM automatic classification and other advanced features.
 
 ## Technology Stack
 
