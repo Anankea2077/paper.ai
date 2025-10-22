@@ -5,14 +5,18 @@ import time
 import os
 import urllib.parse
 import json
-import openai
+from openai import OpenAI
 import sys
-# Simple prompt template loading
 
-# 🔑 PASTE YOUR OPENAI API KEY HERE 🔑
-# Get your API key from: https://platform.openai.com/api-keys
-# Copy and paste your key below (replace the text between quotes):
-OPENAI_API_KEY = "sk-proj-xxxx"
+# Add api directory to path to import keys
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'api'))
+
+# Load API keys
+try:
+    from keys import OPENAI_API_KEY as API_KEY_FROM_FILE
+except ImportError:
+    API_KEY_FROM_FILE = None
+    print("⚠️  Warning: api/keys.py not found. Please create it from api/keys.example.py")
 
 class AdvancedProcessor:
     """
@@ -26,25 +30,26 @@ class AdvancedProcessor:
         Args:
             openai_api_key: OpenAI API key (optional, will use the constant above if not provided)
         """
-        # Set up OpenAI client - priority: parameter > constant > environment variable
+        # Set up OpenAI client - priority: parameter > api/keys.py > environment variable
         api_key = None
         if openai_api_key:
             api_key = openai_api_key
             print(f"✅ Using API key from parameter")
-        elif OPENAI_API_KEY and not OPENAI_API_KEY.startswith("sk-proj-abc123"):
-            api_key = OPENAI_API_KEY
-            print(f"✅ Using API key from constant")
+        elif API_KEY_FROM_FILE and not API_KEY_FROM_FILE.startswith("sk-proj-xxxx"):
+            api_key = API_KEY_FROM_FILE
+            print(f"✅ Using API key from api/keys.py")
         elif os.getenv('OPENAI_API_KEY'):
             api_key = os.getenv('OPENAI_API_KEY')
             print(f"✅ Using API key from environment variable")
         
         if api_key:
-            openai.api_key = api_key
-            self.client = True  # Just a flag to indicate API key is set
+            self.client = OpenAI(api_key=api_key)
             print(f"✅ OpenAI API key set successfully")
         else:
             print("⚠️  WARNING: OpenAI API key not found!")
-            print("   Please paste your API key in the OPENAI_API_KEY constant above")
+            print("   1. Copy api/keys.example.py to api/keys.py and add your key")
+            print("   2. Or set OPENAI_API_KEY environment variable")
+            print("   3. Or pass openai_api_key parameter")
             print("   Get your key from: https://platform.openai.com/api-keys")
             self.client = None
         
@@ -519,7 +524,8 @@ Category:"""
             # Use more tokens for batch classification
             max_tokens = 2000 if len(prompt) > 1000 else 100
             
-            response = openai.ChatCompletion.create(
+            # Call OpenAI API (new version)
+            response = self.client.chat.completions.create(
                 model=model,
                 messages=[
                     {"role": "system", "content": "You are an expert academic paper classifier. Provide accurate classifications in the requested JSON format."},

@@ -79,7 +79,11 @@ logs/
 *.temp
 
 # Project specific
-# Uncomment if you don't want to track PDF files
+# Output and PDF folders
+outputs/*
+pdfs/*
+
+# Individual files
 *.pdf
 *.csv
 
@@ -87,3 +91,7 @@ logs/
 config.ini
 secrets.json
 .secrets
+api/keys.py
+
+# Other files
+my_questions.txt
