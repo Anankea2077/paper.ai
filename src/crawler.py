@@ -195,7 +195,11 @@ class PaperCrawler:
         Returns:
             True if it's an arXiv URL, False otherwise
         """
-        return url and 'arxiv.org' in url and ('/abs/' in url or '/pdf/' in url)
+        if not isinstance(url, str):
+            return False
+        if not url:
+            return False
+        return 'arxiv.org' in url and ('/abs/' in url or '/pdf/' in url)
     
     def _convert_to_pdf_url(self, url: str) -> str:
         """
@@ -207,7 +211,7 @@ class PaperCrawler:
         Returns:
             PDF URL
         """
-        if not url or 'arxiv.org' not in url:
+        if not isinstance(url, str) or not url or 'arxiv.org' not in url:
             return url
         
         if '/abs/' in url:
@@ -271,7 +275,7 @@ class PaperCrawler:
             pass
         
         # Fallback: create filename from title
-        if title:
+        if isinstance(title, str) and title:
             safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).rstrip()
             safe_title = safe_title.replace(' ', '_')[:50]  # Limit length
             return f"{safe_title}.pdf"
